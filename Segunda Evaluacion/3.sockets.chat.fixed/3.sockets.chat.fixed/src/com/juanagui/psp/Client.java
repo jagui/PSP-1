@@ -1,4 +1,4 @@
-package com.alex.psp;
+package com.juanagui.psp;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,35 +9,40 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 public class Client {
-
     public static void main(String[] args) throws IOException {
         if (args.length < 2) {
-            System.err.println("Usage: java Server <ip address> <port number>");
+            System.err.println("Usage: java Client <ip address> <port number>");
             System.exit(1);
         }
+
         InetAddress address = null;
         try {
             address = InetAddress.getByName(args[0]);
-        } catch (UnknownHostException e) {
-            System.err.printf("Usage <ip address> %s invalid", args[0]);
+        } catch (UnknownHostException ex) {
+            System.err.printf("Usage: <ip address> %s invalid%n", args[0]);
             System.exit(1);
         }
+
         if (!address.isReachable(10)) {
-            System.err.printf("Usage: can't reach <ip address> %s\n", args[0]);
+            System.err.printf("Usage: can't reach <ip address> %s%n", args[0]);
             System.exit(1);
         }
+
         int portNumber = 0;
         try {
             portNumber = Integer.parseInt(args[1]);
-        } catch (NumberFormatException ex) {
+        } catch (NumberFormatException e) {
             System.err.println("<port number> must be an integer value");
             System.exit(1);
         }
+
         if (portNumber < Server.MIN_PORT_NUMBER || portNumber > Server.MAX_PORT_NUMBER) {
             System.err.printf("<port number> must be an integer value between %d and %d%n", Server.MIN_PORT_NUMBER, Server.MAX_PORT_NUMBER);
             System.exit(1);
         }
+
         Socket socket = new Socket(address, portNumber);
+
         Runnable keyboardHandler = new Runnable() {
             @Override
             public void run() {
@@ -62,6 +67,7 @@ public class Client {
                 }
             }
         };
+
         Runnable networkHandler = new Runnable() {
             @Override
             public void run() {
@@ -73,7 +79,6 @@ public class Client {
                         System.out.println(line);
                     }
                 } catch (IOException e) {
-
                 } finally {
                     try {
                         socketIn.close();
@@ -82,6 +87,7 @@ public class Client {
                 }
             }
         };
+
         Thread keyboardThread = new Thread(keyboardHandler);
         Thread networkThread = new Thread(networkHandler);
         keyboardThread.start();
@@ -94,6 +100,6 @@ public class Client {
         } finally {
             socket.close();
         }
+
     }
 }
-
