@@ -1,7 +1,5 @@
 package com.alex.psp;
 
-import com.sun.javafx.binding.StringFormatter;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -41,22 +39,21 @@ public class PeerConnection extends Thread implements Observer {
 
                 while ((line = socketIn.readLine()) != null) {
                     String timestampString = getTimeStamp();
-                    if ((line.startsWith(COMMAND_START_CHAR))) {
-                        String command = line.substring(1);
+                    if ((line.toLowerCase().startsWith(COMMAND_START_CHAR))) {
+                        String command = line.substring(1).toLowerCase();
                         if (command.startsWith(NICK_COMMAND)) {
                             String nickname = command.substring(1 + NICK_COMMAND.length());
                             if (nickname.length() > 0) {
                                 this.nickname = nickname;
                             }
-                        } else if (command.startsWith(PRIV_COMMAND)) {
-                            String subcommand = (command.substring(0));
-                            String subcommand2 = (subcommand.substring(PRIV_COMMAND.length())).substring(1);
-                            receiverNick = subcommand2.substring(0, subcommand.indexOf(COMMAND_START_CHAR));
-                            userMessage = command.substring(PRIV_COMMAND.length() + command.indexOf(COMMAND_START_CHAR) + 2);
+                        } else if (command.toLowerCase().startsWith(PRIV_COMMAND)) {
+                            String commandWithoutPriv = command.substring(command.indexOf(COMMAND_START_CHAR));
+                            String commandWithoutPrivBar = commandWithoutPriv.substring(1);
+                            receiverNick = commandWithoutPriv.substring(1, commandWithoutPrivBar.indexOf(COMMAND_START_CHAR) + 1);
+                            userMessage = (commandWithoutPrivBar.substring(commandWithoutPrivBar.indexOf(COMMAND_START_CHAR))).substring(1);
                             channel.sendMessage(receiverNick, String.format("[%s]-[%s]-> %s", timestampString, getNickname(), userMessage));
                         }
                     } else {
-                        //channel.sendMessage(getNickname(), String.format("[%s]: %s", getNickname(), line));
                         channel.notifyUpdateAll(channel, String.format("[%s]-[%s]: %s", timestampString, getNickname(), line));
                     }
                 }

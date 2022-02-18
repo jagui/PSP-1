@@ -49,6 +49,13 @@ public class Channel extends Observable {
         }
     }
 
+    /**
+     * Method which calls one observer or another depending on the size of the
+     * nofifiedObservers array, which will grow if we use /priv/nick/message command and
+     * there are users with the given nick
+     * @param nickname
+     * @param message
+     */
     public void sendMessage(String nickname, String message) {
         notifiedObservers.clear();
         for (int i = 0; i < observers.size(); i++) {
